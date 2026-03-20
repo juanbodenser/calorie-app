@@ -22,28 +22,15 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-button {
-    background: #6200ee;
-    color: white;
-    font-weight: bold;
-    border-radius: 12px;
-    transition: all 0.15s ease;
-}
-
-button:active {
-    transform: scale(0.96);
-}
-
 button:hover {
     background: #4b00c2;
 }
 
 input, select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
+    padding: 10px;
+    margin-top: 8px;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #f1f3f4;
     font-size: 16px;
 }
@@ -63,11 +50,10 @@ input:focus, select:focus {
 }
 
 button {
-    width: 100%;
-    padding: 14px;
-    margin-top: 12px;
+    padding: 12px;
+    margin-top: 10px;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     background: #6200ee;
     color: white;
     font-size: 16px;
@@ -147,4 +133,9 @@ li {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+input, select, button {
+    width: 100%;
+    box-sizing: border-box;
 }

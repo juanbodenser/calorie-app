@@ -1,6 +1,3 @@
-// objetivo diario
-let objetivo = 2600;
-
 // detectar usuario en localStorage
 let usuarioGuardado = localStorage.getItem("usuario");
 
@@ -41,10 +38,15 @@ botonGuardar.addEventListener("click", function() {
 
 // buscamos el elemento en HTML y mostramos las calorías restantes
 let restantesElemento = document.getElementById("restantes");
-restantesElemento.textContent = "Calorías restantes: " + restantes;
 
 // función para actualizar pantalla
 function actualizarPantalla() {
+
+    let usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!usuario) return;
+
+    let objetivo = usuario.objetivo;
 
     let registros = JSON.parse(localStorage.getItem("registros")) || [];
     let hoy = new Date().toISOString().split("T")[0];
@@ -62,7 +64,7 @@ function actualizarPantalla() {
     restantesElemento.textContent =
         "Calorías restantes: " + restantes;
 
-        let estadoElemento = document.getElementById("estadoCalorias");
+    let estadoElemento = document.getElementById("estadoCalorias");
 
     if (restantes > 500) {
         estadoElemento.textContent = "Vas bien 🔥";
@@ -79,7 +81,7 @@ function actualizarPantalla() {
 
     // animación
     restantesElemento.classList.remove("pop");
-    void restantesElemento.offsetWidth; // reinicia animación
+    void restantesElemento.offsetWidth;
     restantesElemento.classList.add("pop");
 }
 
