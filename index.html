@@ -26,76 +26,82 @@
 
         <div id="app" style="display: none;">
 
-            <div class="header">
-                <h1>Huevo Fitness</h1>
-                <p id="fechaHoy"></p>
+            <div id="pantallaPrincipal">
+                <div class="header">
+                    <h1>Huevo Fitness</h1>
+                    <p id="fechaHoy"></p>
+                </div>
+
+                <div class="container">
+                    <h3>Estado</h3>
+                    <p id="restantes"></p>
+                    <p id="estadoCalorias" class="estado"></p>
+                </div>
+
+                <div class="container">
+                    <h3>Registrar comida</h3>
+                    <select id="alimento">
+                        <option value="arroz">Arroz integral</option>
+                        <option value="huevo">Huevo</option>
+                        <option value="pollo">Pechuga de pollo</option>
+                        <option value="contramuslo">Contramuslo</option>
+                        <option value="lomo">Lomo de cerdo</option>
+                        <option value="atun">Atún</option>
+                        <option value="yogurt">Yogur proteico</option>
+                        <option value="aceite">Aceite de oliva</option>
+                    </select>
+
+                    <input id="gramos" type="number" placeholder="Gramos" min="1">
+
+                    <button id="btnAgregar">Añadir comida</button>
+                </div>
+
+                <div class="container">
+                    <h3>Resumen de hoy</h3>
+                    <p id="totalCalorias">Calorías: 0</p>
+                    <p id="totalProteinas">Proteínas: 0g</p>
+                </div>
+
+                <div class="container">
+                    <h3>Historial de hoy</h3>
+                    <ul id="listaRegistros"></ul>
+                </div>
+
+                <div class="container" id="balanceSemanal">
+                    <h3>Balance semanal</h3>
+                    <p id="promedio7">Promedio: 0 kcal</p>
+                    <p id="balance7">Balance: 0 kcal</p>
+                </div>
+
+                <div class="container">
+                    <h3>Entrada rápida</h3>
+                    <button id="btnComida">Añadir calorías manual</button>
+                </div>
+
+                <!-- Opciones adicionales para testing -->
+                <div class="container">
+                    <h3>Opciones</h3>
+                    <button id="btnLimpiar">Limpiar registros</button>
+                    <button id="btnEliminarUsuario">Eliminar usuario</button>
+                </div>
+
+                <div id="badge" class="badge"></div>
+
             </div>
 
-            <div class="container">
-                <h3>Estado</h3>
-                <p id="restantes"></p>
-                <p id="estadoCalorias" class="estado"></p>
+            <div id="pantallaGrafico" style="display: none;">
+
+                <div class="container">
+                    <h2>Semana</h2>
+                    <canvas id="grafico"></canvas>
+                    <p id="infoSemana"></p>
+                    <button onclick="cerrarGrafico()">Volver</button>
+                </div>
+
             </div>
 
-            <div class="container">
-                <h3>Registrar comida</h3>
-                <select id="alimento">
-                    <option value="arroz">Arroz integral</option>
-                    <option value="huevo">Huevo</option>
-                    <option value="pollo">Pechuga de pollo</option>
-                    <option value="contramuslo">Contramuslo</option>
-                    <option value="lomo">Lomo de cerdo</option>
-                    <option value="atun">Atún</option>
-                    <option value="yogurt">Yogur proteico</option>
-                    <option value="aceite">Aceite de oliva</option>
-                </select>
-
-                <input id="gramos" type="number" placeholder="Gramos" min="1">
-
-                <button id="btnAgregar">Añadir comida</button>
-            </div>
-
-            <div class="container">
-                <h3>Resumen de hoy</h3>
-                <p id="totalCalorias">Calorías: 0</p>
-                <p id="totalProteinas">Proteínas: 0g</p>
-            </div>
-
-            <div class="container">
-                <h3>Historial de hoy</h3>
-                <ul id="listaRegistros"></ul>
-            </div>
-
-            <div class="container" id="balanceSemanal">
-                <h3>Balance semanal</h3>
-                <p id="promedio7">Promedio: 0 kcal</p>
-                <p id="balance7">Balance: 0 kcal</p>
-            </div>
-
-            <div class="container" id="pantallaGrafico" style="display:none;">
-                <h2>Semana</h2>
-                <canvas id="grafico"></canvas>
-                <button onclick="cerrarGrafico()">Cerrar</button>
-            </div>
-
-            <div class="container">
-                <p id="infoSemana"></p>
-            </div>
-
-            <div class="container">
-                <h3>Entrada rápida</h3>
-                <button id="btnComida">Añadir calorías manual</button>
-            </div>
-
-            <!-- Opciones adicionales para testing -->
-            <div class="container">
-                <h3>Opciones</h3>
-                <button id="btnLimpiar">Limpiar registros</button>
-                <button id="btnEliminarUsuario">Eliminar usuario</button>
-            </div>
-
-            <div id="badge" class="badge"></div>    
         </div>
+
     </div>
 
     

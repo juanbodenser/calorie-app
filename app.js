@@ -445,21 +445,20 @@ document.getElementById("balanceSemanal").onclick = function() {
 };
 
 function abrirGrafico() {
-    let pantalla = document.getElementById("pantallaGrafico");
-
-    if (pantalla.style.display === "block") return;
-
-    pantalla.style.display = "block";
-    dibujarGrafico();
+    document.getElementById("pantallaPrincipal").style.display = "none";
+    document.getElementById("pantallaGrafico").style.display = "block";
+    setTimeout(() => {
+        dibujarGrafico();
+    }, 50); // pequeño delay para asegurar que el canvas esté visible
 }
 
 function cerrarGrafico() {
     document.getElementById("pantallaGrafico").style.display = "none";
+    document.getElementById("pantallaPrincipal").style.display = "block";
 }
 
 // función para dibujar el gráfico semanal de calorías usando Chart.js
 function dibujarGrafico() {
-
     let registros = JSON.parse(localStorage.getItem("registros")) || [];
     let usuario = JSON.parse(localStorage.getItem("usuario"));
     let mantenimiento = usuario.mantenimiento;
@@ -510,33 +509,57 @@ function dibujarGrafico() {
         }
     });
 
-    // mostrar mejor y peor día en la pantalla
-    let info = document.getElementById("infoSemana");
-
-    info.textContent =
-        "🔥 Mejor día: " + dias[mejorIndex] +
-        " | 🚨 Peor día: " + dias[peorIndex];
-
-
     // calcular colores para cada barra dependiendo de lo cerca que esté del objetivo
     let backgroundColors = calorias.map(c => {
-
     let deficit = mantenimiento - c;
 
     if (deficit >= 400 && deficit <= 800) {
         return "green"; // 🔥 perfecto
     }
-
     if (deficit > 800) {
         return "orange"; // ⚠️ demasiado agresivo
     }
-
     if (deficit <= 0) {
         return "red"; // 🚨 te pasaste
     }
-
     return "gray"; // meh
     });
+
+    // 📊 calcular promedio semanal
+    let promedio = Math.round(
+        calorias.reduce((a, b) => a + b, 0) / calorias.length
+    );
+
+    // ⚖️ calcular balance respecto a mantenimiento
+    let balance = promedio - mantenimiento;
+
+    // 🔍 encontrar mayor y menor consumo
+    let max = Math.max(...calorias);
+    let min = Math.min(...calorias);
+
+    let indexMax = calorias.indexOf(max);
+    let indexMin = calorias.indexOf(min);
+
+    // 🖥️ mostrar toda la info junta (SIN sobrescribir)
+    let info = document.getElementById("infoSemana");
+
+    let balanceTexto = balance > 0 ? "+" + balance : balance;
+
+    let colorBalance = "gray";
+
+    if (balance < -300) {
+        colorBalance = "green";
+    } else if (balance < 0) {
+        colorBalance = "orange";
+    } else {
+        colorBalance = "red";
+    }
+
+    info.innerHTML =
+        "⬇️ Menor consumo: " + dias[indexMin] + " (" + min + " kcal)<br>" +
+        "⬆️ Mayor consumo: " + dias[indexMax] + " (" + max + " kcal)<br>" +
+        "📊 Promedio: " + promedio + " kcal<br>" +
+        "⚖️ Balance: <span style='color:" + colorBalance + "'>" + balanceTexto + " kcal</span>";
 
 
     // obtener contexto del canvas
@@ -556,6 +579,13 @@ function dibujarGrafico() {
                 data: calorias,
                 backgroundColor: backgroundColors
             }]
+        },
+        options: {
+            plugins: {
+            legend: {
+                display: false
+                }
+            }
         }
     });
 }
@@ -590,6 +620,3 @@ localStorage.setItem("registros", JSON.stringify(registrosTest));
 calcularTotalesHoy();
 // estado inicial
 actualizarPantalla();
-
-
-console.log("objetivo:", objetivo);
