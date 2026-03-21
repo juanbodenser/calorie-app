@@ -1,3 +1,8 @@
+// app.js
+
+// variable global para el gráfico semanal
+let miGrafico = null;
+
 // detectar usuario en localStorage
 let usuarioGuardado = localStorage.getItem("usuario");
 
@@ -79,6 +84,10 @@ function actualizarPantalla() {
         estadoElemento.style.color = "red";
     }
 
+    calcularBalanceSemanal();
+    mostrarRegistros();
+    calcularTotalesHoy();
+
     // animación
     restantesElemento.classList.remove("pop");
     void restantesElemento.offsetWidth;
@@ -111,8 +120,6 @@ boton.addEventListener("click", function() {
     registros.push(registro);
     localStorage.setItem("registros", JSON.stringify(registros));
 
-    mostrarRegistros();
-    calcularTotalesHoy();
     actualizarPantalla();
 });
 
@@ -161,7 +168,8 @@ let alimentos = {
         kcal: 62,
         proteinas: 12,
         hidratos: 3.1,
-        grasas: 0
+        grasas: 0,
+        gramosPorUnidad: 120
     },
 
     atun: {
@@ -223,9 +231,7 @@ botonAgregar.addEventListener("click", function() {
     localStorage.setItem("registros", JSON.stringify(registros));
 
     // UI
-    mostrarRegistros();
     actualizarPantalla();
-    calcularTotalesHoy();
 
     // 🔥 UX PRO
     inputCantidad.value = "";
@@ -372,8 +378,218 @@ btnEliminarUsuario.addEventListener("click", function() {
     }
 });
 
+// función para calcular y mostrar el balance semanal (promedio de calorías diarias y balance respecto al objetivo)
+function calcularBalanceSemanal() {
+
+    let usuario = JSON.parse(localStorage.getItem("usuario"));
+    if (!usuario) return;
+
+    let mantenimiento = usuario.mantenimiento;
+
+    let registros = JSON.parse(localStorage.getItem("registros")) || [];
+
+    let hoy = new Date();
+
+    let total = 0;
+    let dias = 0;
+
+    for (let i = 0; i < 7; i++) {
+
+        let fecha = new Date();
+        fecha.setDate(hoy.getDate() - i);
+
+        let fechaStr = fecha.toISOString().split("T")[0];
+
+        let kcalDia = 0;
+
+        registros.forEach(r => {
+            if (r.fecha === fechaStr) {
+                kcalDia += r.calorias;
+            }
+        });
+
+        if (kcalDia > 0) {
+            total += kcalDia;
+            dias++;
+        }
+    }
+
+    let promedio = dias > 0 ? Math.round(total / dias) : 0;
+
+    let balance = promedio - mantenimiento;
+
+    // mostrar en pantalla
+    document.getElementById("promedio7").textContent =
+        "Promedio: " + promedio + " kcal";
+
+    let balanceElemento = document.getElementById("balance7");
+
+    balanceElemento.textContent =
+        "Balance: " + balance + " kcal";
+
+    // colores tipo semáforo
+    if (balance < -300) {
+        balanceElemento.style.color = "green";
+
+    } else if (balance < 0) {
+        balanceElemento.style.color = "orange";
+
+    } else {
+        balanceElemento.style.color = "red";
+    }
+}
+
+// función para abrir/cerrar el gráfico semanal (usando Chart.js)
+document.getElementById("balanceSemanal").onclick = function() {
+    abrirGrafico();
+};
+
+function abrirGrafico() {
+    let pantalla = document.getElementById("pantallaGrafico");
+
+    if (pantalla.style.display === "block") return;
+
+    pantalla.style.display = "block";
+    dibujarGrafico();
+}
+
+function cerrarGrafico() {
+    document.getElementById("pantallaGrafico").style.display = "none";
+}
+
+// función para dibujar el gráfico semanal de calorías usando Chart.js
+function dibujarGrafico() {
+
+    let registros = JSON.parse(localStorage.getItem("registros")) || [];
+    let usuario = JSON.parse(localStorage.getItem("usuario"));
+    let mantenimiento = usuario.mantenimiento;
+
+    let hoy = new Date();
+
+    let dias = [];
+    let calorias = [];
+
+    for (let i = 6; i >= 0; i--) {
+
+        let fecha = new Date();
+        fecha.setDate(hoy.getDate() - i);
+
+        let fechaStr = fecha.toISOString().split("T")[0];
+
+        let kcalDia = 0;
+
+        registros.forEach(r => {
+            if (r.fecha === fechaStr) {
+                kcalDia += r.calorias;
+            }
+        });
+
+        dias.push(fechaStr.slice(5));
+        calorias.push(kcalDia);
+    }
+
+    // encontrar el mejor y peor día para mostrar en el tooltip
+    let mejorIndex = -1;
+    let peorIndex = -1;
+
+    let mejorDeficit = -Infinity;
+    let peorDeficit = Infinity;
+
+    calorias.forEach((c, i) => {
+
+        let deficit = mantenimiento - c;
+
+        if (deficit > mejorDeficit) {
+            mejorDeficit = deficit;
+            mejorIndex = i;
+        }
+
+        if (deficit < peorDeficit) {
+            peorDeficit = deficit;
+            peorIndex = i;
+        }
+    });
+
+    // mostrar mejor y peor día en la pantalla
+    let info = document.getElementById("infoSemana");
+
+    info.textContent =
+        "🔥 Mejor día: " + dias[mejorIndex] +
+        " | 🚨 Peor día: " + dias[peorIndex];
+
+
+    // calcular colores para cada barra dependiendo de lo cerca que esté del objetivo
+    let backgroundColors = calorias.map(c => {
+
+    let deficit = mantenimiento - c;
+
+    if (deficit >= 400 && deficit <= 800) {
+        return "green"; // 🔥 perfecto
+    }
+
+    if (deficit > 800) {
+        return "orange"; // ⚠️ demasiado agresivo
+    }
+
+    if (deficit <= 0) {
+        return "red"; // 🚨 te pasaste
+    }
+
+    return "gray"; // meh
+    });
+
+
+    // obtener contexto del canvas
+    let ctx = document.getElementById("grafico").getContext("2d");
+
+    // 🔥 CLAVE para no crear múltiples gráficos
+    if (miGrafico) {
+        miGrafico.destroy();
+    }
+
+    miGrafico = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: dias,
+            datasets: [{
+                label: "Calorías",
+                data: calorias,
+                backgroundColor: backgroundColors
+            }]
+        }
+    });
+}
+
+// registros de prueba para no tener que meter comida cada día durante el desarrollo
+let registrosTest = [
+    { fecha: "2026-03-20", calorias: 3500 },
+    { fecha: "2026-03-19", calorias: 2500 },
+    { fecha: "2026-03-18", calorias: 1800 },
+    { fecha: "2026-03-17", calorias: 3000 },
+    { fecha: "2026-03-16", calorias: 2600 },
+    { fecha: "2026-03-15", calorias: 1000 },
+    { fecha: "2026-03-14", calorias: 1900 },
+    { fecha: "2026-03-13", calorias: 2300 },
+    { fecha: "2026-03-13", calorias: 3100 },
+    { fecha: "2026-03-12", calorias: 2500 },
+    { fecha: "2026-03-11", calorias: 1800 },
+    { fecha: "2026-03-10", calorias: 3500 },
+    { fecha: "2026-03-13", calorias: 2300 },
+    { fecha: "2026-03-13", calorias: 3100 },
+    { fecha: "2026-03-12", calorias: 2400 },
+    { fecha: "2026-03-11", calorias: 1800 },
+    { fecha: "2026-03-10", calorias: 2600 }
+];
+// guardar registros de prueba en el almacenamiento local
+localStorage.setItem("registros", JSON.stringify(registrosTest));
+
+
+
 
 // llamar a la función para calcular totales al cargar la página
 calcularTotalesHoy();
 // estado inicial
 actualizarPantalla();
+
+
+console.log("objetivo:", objetivo);

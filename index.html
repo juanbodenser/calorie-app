@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Real</title>
+    <title>Huevo Fitness</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,7 +27,7 @@
         <div id="app" style="display: none;">
 
             <div class="header">
-                <h1>Fitness Real</h1>
+                <h1>Huevo Fitness</h1>
                 <p id="fechaHoy"></p>
             </div>
 
@@ -66,11 +66,28 @@
                 <ul id="listaRegistros"></ul>
             </div>
 
+            <div class="container" id="balanceSemanal">
+                <h3>Balance semanal</h3>
+                <p id="promedio7">Promedio: 0 kcal</p>
+                <p id="balance7">Balance: 0 kcal</p>
+            </div>
+
+            <div id="pantallaGrafico" style="display:none;">
+                <h2>Semana</h2>
+                <canvas id="grafico"></canvas>
+                <button onclick="cerrarGrafico()">Cerrar</button>
+            </div>
+
+            <div class="container">
+                <p id="infoSemana"></p>
+            </div>
+
             <div class="container">
                 <h3>Entrada rápida</h3>
                 <button id="btnComida">Añadir calorías manual</button>
             </div>
 
+            <!-- Opciones adicionales para testing -->
             <div class="container">
                 <h3>Opciones</h3>
                 <button id="btnLimpiar">Limpiar registros</button>
@@ -84,5 +101,6 @@
     
 
     <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
