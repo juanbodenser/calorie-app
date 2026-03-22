@@ -4,7 +4,7 @@
   "start_url": ".",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
+  "theme_color": "#6200EE",
   "icons": [
     {
       "src": "/calorie-app/icono-192.png",
