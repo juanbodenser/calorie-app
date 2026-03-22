@@ -1,7 +1,7 @@
 // sw.js
 
 // Service Worker para cachear los archivos esenciales de la app y permitir su funcionamiento offline
-const CACHE_NAME = "app-cache-v2";
+const CACHE_NAME = "app-cache-v3";
 
 const FILES_TO_CACHE = [
     "/",
