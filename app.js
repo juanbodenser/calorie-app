@@ -548,8 +548,8 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
     }
 
     // registros de prueba para no tener que meter comida cada día durante el desarrollo
-    let registrosTest = [
-        //{ fecha: "2026-03-22", calorias: 3500 },
+    /* let registrosTest = [
+        { fecha: "2026-03-22", calorias: 3500 },
         { fecha: "2026-03-21", calorias: 2500 },
         { fecha: "2026-03-20", calorias: 1800 },
         { fecha: "2026-03-19", calorias: 3000 },
@@ -568,7 +568,7 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
         { fecha: "2026-03-06", calorias: 2600 }
     ];
     // guardar registros de prueba en el almacenamiento local
-    localStorage.setItem("registros", JSON.stringify(registrosTest));
+    localStorage.setItem("registros", JSON.stringify(registrosTest)); */
 
     // llamar a la función para
     mostrarFechaHoy();
