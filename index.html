@@ -26,6 +26,7 @@
             </div>
         </div>
 
+        <!-- Pantalla principal (oculta inicialmente, se muestra tras configurar usuario) -->
         <div id="app" style="display: none;">
 
             <div id="pantallaPrincipal">
@@ -37,19 +38,10 @@
                 <div class="container" id="estadoBox">
                     <h3>Estado</h3>
                 </div>
-
+                <!-- Formulario para registrar comida -->
                 <div class="container">
                     <h3>Registrar comida</h3>
-                    <select id="alimento">
-                        <option value="arroz">Arroz integral</option>
-                        <option value="huevo">Huevo</option>
-                        <option value="pollo">Pechuga de pollo</option>
-                        <option value="contramuslo">Contramuslo</option>
-                        <option value="lomo">Lomo de cerdo</option>
-                        <option value="atun">Atún</option>
-                        <option value="yogurt">Yogur proteico</option>
-                        <option value="aceite">Aceite de oliva</option>
-                    </select>
+                    <select id="alimento"></select>
 
                     <input id="gramos" type="number" placeholder="Gramos" min="1">
 
@@ -90,7 +82,7 @@
                     <h2>Semana</h2>
                     <canvas id="grafico"></canvas>
                     <p id="infoSemana"></p>
-                    <button onclick="cerrarGrafico()">Volver</button>
+                    <button id="cerrarGrafico">Volver</button>
                 </div>
 
             </div>

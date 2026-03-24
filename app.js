@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
     // variable global para el gráfico semanal
     let miGrafico = null;
 
+    // referencias a elementos del DOM que se usarán en varias funciones
+    const selectAlimento = document.getElementById("alimento");
+    const inputGramos = document.getElementById("gramos");
+    const botonAgregar = document.getElementById("btnAgregar");
+
     // funcion para detectar usuario en localStorage
     function obtenerUsuario() {
         return JSON.parse(localStorage.getItem("usuario"));
@@ -157,17 +162,46 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
     }
 
     // base de datos de alimentos (calorías por 100 gramos)
-    let alimentos = {
+    let alimentos = [
 
-        arroz: {
-            nombre: "Arroz integral",
+        {
+            id: "arroz_crudo",
+            nombre: "Arroz integral crudo",
             kcal: 350,
             hidratos: 72,
             proteinas: 7.6,
             grasas: 0
         },
 
-        huevo: {
+        {
+            id: "arroz_integral_cocido",
+            nombre: "Arroz integral cocido",
+            kcal: 129,
+            hidratos: 26.5,
+            proteinas: 2.8,
+            grasas: 0
+        },
+
+        {
+            id: "arroz_jazmin_crudo",
+            nombre: "Arroz jazmín crudo",
+            kcal: 353,
+            hidratos: 78,
+            proteinas: 6.9,
+            grasas: 1.2
+        },
+
+        {
+            id: "arroz_jazmin_cocido",
+            nombre: "Arroz jazmín cocido",
+            kcal: 154,
+            hidratos: 34,
+            proteinas: 3,
+            grasas: 0.5
+        },
+
+        {
+            id: "huevo",
             nombre: "Huevo",
             kcal: 133,
             proteinas: 12.1,
@@ -175,28 +209,32 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
             gramosPorUnidad: 70
         },
 
-        lomo: {
+        {
+            id: "lomo",
             nombre: "Lomo de cerdo duroc",
             kcal: 152,
             proteinas: 18,
             grasas: 8.9
         },
 
-        pollo: {
+        {
+            id: "pollo",
             nombre: "Pechuga de pollo",
             kcal: 108,
             proteinas: 22,
             grasas: 1.8
         },
 
-        contramuslo: {
+        {
+            id: "contramuslo",
             nombre: "Contramuslo de pollo",
             kcal: 127,
             proteinas: 19,
             grasas: 4.9
         },
 
-        yogurt: {
+        {
+            id: "yogurt",
             nombre: "Yogur proteico",
             kcal: 62,
             proteinas: 12,
@@ -205,93 +243,90 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
             gramosPorUnidad: 120
         },
 
-        atun: {
+        {
+            id: "atun",
             nombre: "Atún al natural",
             kcal: 98,
             proteinas: 21,
             gramosPorUnidad: 60
         },
 
-        aceite: {
+        {
+            id: "aceite",
             nombre: "Aceite de oliva",
             kcal: 900,
             grasas: 100
         }
-    };
+    ];
+
+    // función para obtener el alimento seleccionado en el formulario, buscando por su id en la base de datos de alimentos
+    function obtenerAlimentoSeleccionado() {
+
+            const id = selectAlimento.value;
+
+            return alimentos.find(a => a.id === id);
+        }
 
     // nueva versión del botón para agregar comida con cálculo de calorías y proteínas, y registro en localStorage
-    let botonAgregar = document.getElementById("btnAgregar");
+
     botonAgregar.addEventListener("click", function() {
 
-        let alimentoSeleccionado = document.getElementById("alimento").value;
-        let cantidad = Number(inputCantidad.value);
+        const cantidad = Number(inputGramos.value);
 
-        // ❌ evitar registros basura
+        // evitar registros basura
         if (!cantidad || cantidad <= 0) {
             alert("Introduce una cantidad válida");
             return;
         }
+    
+        const alimento = obtenerAlimentoSeleccionado();
+        if (!alimento) return;
 
-        let alimento = alimentos[alimentoSeleccionado];
+        // 1. Cálculo de gramos con ternario (¡Mucho más limpio!)
+        // Si hay gramosPorUnidad, multiplicamos; si no, usamos la cantidad tal cual.
+        const gramosTotales = alimento.gramosPorUnidad 
+            ? cantidad * alimento.gramosPorUnidad 
+            : cantidad;
 
-        let gramos;
-
-        if (alimento.gramosPorUnidad) {
-            gramos = cantidad * alimento.gramosPorUnidad;
-        } else {
-            gramos = cantidad;
-        }
-
-        let calorias = Math.round((alimento.kcal * gramos) / 100);
-        let proteinas = Math.round((alimento.proteinas || 0) * gramos / 100);
+        // 2. Cálculo de macros con protección (|| 0) y redondeo (Math.round) para evitar decimales feos
+        // Usamos (gramosTotales / 100) porque tus kcal son por cada 100g
+        const factor = gramosTotales / 100;
+        
+        const calorias = Math.round(alimento.kcal * factor)
+        const proteinas = Math.round((alimento.proteinas || 0) * factor)
+        const hidratos = Math.round((alimento.hidratos || 0) * factor)
 
         // 🕒 fecha y hora
-        let ahora = new Date();
-        let fecha = ahora.toISOString().split("T")[0];
-        let hora = ahora.toTimeString().split(" ")[0].slice(0,5);
+        const ahora = new Date();
+        const fecha = ahora.toISOString().split("T")[0];
+        const hora = ahora.toTimeString().split(" ")[0].slice(0, 5);
 
         let registro = {
             fecha,
             hora,
             alimento: alimento.nombre,
-            gramos,
+            gramosTotales,
             calorias,
-            proteinas
+            proteinas,
+            hidratos
         };
 
-        let registros = JSON.parse(localStorage.getItem("registros")) || [];
+        const registros = JSON.parse(localStorage.getItem("registros")) || [];
         registros.push(registro);
         localStorage.setItem("registros", JSON.stringify(registros));
 
-        // 🔥 UX PRO
-        inputCantidad.value = "";
-        inputCantidad.focus();
+        // UX: Limpiar y foco
+        inputGramos.value = "";
+        inputGramos.focus();
 
         // badge
-        mostrarBadge("+" + calorias + " kcal");
+        mostrarBadge(`+${calorias} kcal`);
 
         actualizarPantalla();
     });
 
-    // código para cambiar el placeholder dependiendo del alimento seleccionado
-    let selectAlimento = document.getElementById("alimento");
-    let inputCantidad = document.getElementById("gramos");
-
-    selectAlimento.addEventListener("change", function() {
-
-        let seleccionado = selectAlimento.value;
-        let alimento = alimentos[seleccionado];
-
-        if (alimento.gramosPorUnidad) {
-            inputCantidad.placeholder = "Unidades";
-        } else {
-            inputCantidad.placeholder = "Gramos";
-        }
-
-    });
-
     // permitir pulsar Enter para añadir comida
-    inputCantidad.addEventListener("keypress", function(e) {
+    inputGramos.addEventListener("keypress", function(e) {
         if (e.key === "Enter") {
             botonAgregar.click();
         }
@@ -346,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
             item.textContent = 
                 r.hora + " - " + 
                 r.alimento + " - " + 
-                r.gramos + "g - " + 
+                r.gramosTotales + "g - " + 
                 r.calorias + " kcal";
 
             lista.appendChild(item);
@@ -355,8 +390,6 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
         // hacer scroll al final de la lista
         lista.scrollTop = lista.scrollHeight;
     }
-
-
 
     // función para mostrar la fecha de hoy en formato "Hoy: 14 de septiembre de 2024"
     function mostrarFechaHoy() {
@@ -439,7 +472,7 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
         }
     }
 
-    // función para abrir/cerrar el gráfico semanal (usando Chart.js)
+    // función para abrir gráfico semanal (usando Chart.js)
     document.getElementById("balanceSemanal").onclick = function() {
         abrirGrafico();
     };
@@ -456,6 +489,11 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
         document.getElementById("pantallaGrafico").style.display = "none";
         document.getElementById("pantallaPrincipal").style.display = "block";
     }
+
+    // llamar función para cerrar gráfico al hacer clic en el botón de cerrar
+    document.getElementById("cerrarGrafico").onclick = function() {
+        cerrarGrafico();
+    };
 
     // función para dibujar el gráfico semanal de calorías usando Chart.js
     function dibujarGrafico() {
@@ -570,6 +608,47 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
     // guardar registros de prueba en el almacenamiento local
     localStorage.setItem("registros", JSON.stringify(registrosTest)); */
 
+    // función para cargar alimentos en el select del formulario, usando la base de datos de alimentos definida más arriba
+    function cargarAlimentos() {
+
+        selectAlimento.innerHTML = "";
+
+        alimentos.forEach(a => {
+            let option = document.createElement("option");
+            option.value = a.id;
+            option.textContent = a.nombre;
+            selectAlimento.appendChild(option);
+        });
+    }
+
+    // función para actualizar el placeholder del input de cantidad dependiendo del alimento seleccionado (si tiene gramos por unidad, mostrar "Unidades", si no, mostrar "Gramos")
+    function actualizarPlaceholder() {
+
+        const id = selectAlimento.value;
+        const alimento = obtenerAlimentoSeleccionado();
+
+        if (!alimento) return; // silencio elegante 😏
+
+        // forma tradicional con if-else
+        // if (alimento.gramosPorUnidad) {
+        //     inputGramos.placeholder = "Unidades";
+        // } else {
+        //     inputGramos.placeholder = "Gramos";
+        // }
+
+        // hacemos lo mismo pero usando el operador ternario para practicar esa sintaxis, (es como un if/else pero corto)
+        inputGramos.placeholder = alimento.gramosPorUnidad ? "Unidades" : "Gramos";
+    }
+
+    // llamar a la función para actualizar el placeholder al cambiar el alimento seleccionado
+    selectAlimento.addEventListener("change", actualizarPlaceholder);
+
+
+
+
+    // llamar a la función para cargar alimentos en el select al cargar la página
+    cargarAlimentos();
+
     // llamar a la función para
     mostrarFechaHoy();
 
@@ -577,9 +656,9 @@ document.addEventListener("DOMContentLoaded", () => { // aseguramos que el DOM e
     actualizarPantalla();
 
     if ("serviceWorker" in navigator) { // registrar el Service Worker para poder usar la app offline y otras funcionalidades avanzadas
-        navigator.serviceWorker.register("sw.js")
-            .then(() => console.log("SW registrado"))
-            .catch(err => console.log("Error SW:", err));
-    }
+         navigator.serviceWorker.register("sw.js")
+             .then(() => console.log("SW registrado"))
+             .catch(err => console.log("Error SW:", err));
+     }
 
 });
